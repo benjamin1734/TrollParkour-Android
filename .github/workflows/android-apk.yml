@@ -94,6 +94,23 @@ jobs:
         run: |
           "$HOME/godot/Godot_v4.3-stable_linux.x86_64" --headless --path . --import --verbose
 
+      - name: Runtime smoke test
+        shell: bash
+        run: |
+          set -euo pipefail
+          LOG=/tmp/trollparkour-runtime.log
+          "$HOME/godot/Godot_v4.3-stable_linux.x86_64" \
+            --headless \
+            --path . \
+            --quit-after 120 \
+            --verbose >"$LOG" 2>&1
+          cat "$LOG"
+          grep -q "BOOT_OK:TrollParkour menu ready" "$LOG"
+          if grep -Eq "SCRIPT ERROR|Parse Error|Invalid call|Invalid access|Nonexistent function|Attempt to call" "$LOG"; then
+            echo "Runtime script error detected"
+            exit 1
+          fi
+
       - name: Export Android APK
         shell: bash
         run: |
@@ -103,10 +120,10 @@ jobs:
             --headless \
             --path . \
             --export-debug Android \
-            artifact/TrollParkour-v1.1-debug.apk \
+            artifact/TrollParkour-v1.2-debug.apk \
             --verbose
-          test -s artifact/TrollParkour-v1.1-debug.apk
-          ls -lh artifact/TrollParkour-v1.1-debug.apk
+          test -s artifact/TrollParkour-v1.2-debug.apk
+          ls -lh artifact/TrollParkour-v1.2-debug.apk
 
       - name: Verify APK signature
         shell: bash
@@ -114,12 +131,12 @@ jobs:
           "$ANDROID_SDK_ROOT/build-tools/34.0.0/apksigner" verify \
             --verbose \
             --print-certs \
-            artifact/TrollParkour-v1.1-debug.apk
+            artifact/TrollParkour-v1.2-debug.apk
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: TrollParkour-v1.1-Android-APK
-          path: artifact/TrollParkour-v1.1-debug.apk
+          name: TrollParkour-v1.2-Android-APK
+          path: artifact/TrollParkour-v1.2-debug.apk
           if-no-files-found: error
           retention-days: 30
