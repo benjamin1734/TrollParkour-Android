@@ -128,7 +128,7 @@ jobs:
             exit 1
           fi
 
-      - name: Validate all 66 maps
+      - name: Validate all 69 maps
         shell: bash
         run: |
           set -euo pipefail
@@ -140,8 +140,8 @@ jobs:
             -- \
             --validate-all-levels >"$LOG" 2>&1
           cat "$LOG"
-          grep -q "ALL_LEVELS_OK:66" "$LOG"
-          test "$(grep -c 'LEVEL_VALIDATE_OK:' "$LOG")" -eq 66
+          grep -q "ALL_LEVELS_OK:69" "$LOG"
+          test "$(grep -c 'LEVEL_VALIDATE_OK:' "$LOG")" -eq 69
           if grep -Eq "SCRIPT ERROR|Parse Error|Invalid call|Invalid access|Nonexistent function|Attempt to call|LEVEL_VALIDATE_FAIL|ALL_LEVELS_FAILED" "$LOG"; then
             echo "Full-map validation error detected"
             exit 1
@@ -156,10 +156,10 @@ jobs:
             --headless \
             --path . \
             --export-debug Android \
-            artifact/TrollParkour-v2.6-debug.apk \
+            artifact/TrollParkour-v2.7-debug.apk \
             --verbose
-          test -s artifact/TrollParkour-v2.6-debug.apk
-          ls -lh artifact/TrollParkour-v2.6-debug.apk
+          test -s artifact/TrollParkour-v2.7-debug.apk
+          ls -lh artifact/TrollParkour-v2.7-debug.apk
 
       - name: Verify APK signature
         shell: bash
@@ -167,12 +167,12 @@ jobs:
           "$ANDROID_SDK_ROOT/build-tools/34.0.0/apksigner" verify \
             --verbose \
             --print-certs \
-            artifact/TrollParkour-v2.6-debug.apk
+            artifact/TrollParkour-v2.7-debug.apk
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: TrollParkour-v2.6-Android-APK
-          path: artifact/TrollParkour-v2.6-debug.apk
+          name: TrollParkour-v2.7-Android-APK
+          path: artifact/TrollParkour-v2.7-debug.apk
           if-no-files-found: error
           retention-days: 30
