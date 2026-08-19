@@ -13,6 +13,12 @@ const V10_RED := Color("#dc4455")
 const V10_RED_DARK := Color("#7f2937")
 const V10_PURPLE := Color("#7c3aed")
 
+var controls_reversed: bool = false:
+    set(value):
+        controls_reversed = value
+        if is_instance_valid(player):
+            player.controls_reversed = value
+
 func _start_level(c: int, p: int) -> void:
     super._start_level(c, p)
     if c == 8:
