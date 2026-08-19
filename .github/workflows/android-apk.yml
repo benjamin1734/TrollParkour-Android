@@ -94,6 +94,23 @@ jobs:
         run: |
           "$HOME/godot/Godot_v4.3-stable_linux.x86_64" --headless --path . --import --verbose
 
+      - name: Runtime smoke test
+        shell: bash
+        run: |
+          set -euo pipefail
+          LOG=/tmp/trollparkour-runtime.log
+          "$HOME/godot/Godot_v4.3-stable_linux.x86_64" \
+            --headless \
+            --path . \
+            --quit-after 120 \
+            --verbose >"$LOG" 2>&1
+          cat "$LOG"
+          grep -q "BOOT_OK:TrollParkour menu ready" "$LOG"
+          if grep -Eq "SCRIPT ERROR|Parse Error|Invalid call|Invalid access|Nonexistent function|Attempt to call" "$LOG"; then
+            echo "Runtime script error detected"
+            exit 1
+          fi
+
       - name: Export Android APK
         shell: bash
         run: |
