@@ -1,0 +1,5 @@
+.godot/
+build/
+artifact/
+*.keystore
+*.jks
