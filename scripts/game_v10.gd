@@ -480,3 +480,4 @@ func _level_8_3() -> void:
                 create_tween().tween_property(goal, "position:y", 475.0, 0.32).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
             else:
                 _false_alarm()
+    )
