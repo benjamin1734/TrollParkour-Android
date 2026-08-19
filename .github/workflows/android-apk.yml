@@ -16,18 +16,14 @@ jobs:
   build-apk:
     name: Build debug APK
     runs-on: ubuntu-latest
-    timeout-minutes: 20
-    env:
-      GODOT_ANDROID_KEYSTORE_DEBUG_PATH: /home/runner/.android/debug.keystore
-      GODOT_ANDROID_KEYSTORE_DEBUG_USER: androiddebugkey
-      GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD: android
+    timeout-minutes: 25
 
     steps:
       - name: Checkout
         uses: actions/checkout@v5
 
       - name: Set up Java 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
@@ -35,48 +31,91 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v4
 
-      - name: Create debug keystore
+      - name: Install Android dependencies
+        shell: bash
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager --sdk_root="$ANDROID_SDK_ROOT" \
+            "platform-tools" \
+            "build-tools;34.0.0" \
+            "platforms;android-34"
+
+      - name: Install Godot 4.3 and export templates
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p "$HOME/godot" /tmp/godot-templates "$HOME/.local/share/godot/export_templates/4.3.stable"
+          curl -L --fail --retry 3 -o /tmp/godot.zip \
+            https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_linux.x86_64.zip
+          unzip -q /tmp/godot.zip -d "$HOME/godot"
+          chmod +x "$HOME/godot/Godot_v4.3-stable_linux.x86_64"
+          curl -L --fail --retry 3 -o /tmp/templates.tpz \
+            https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_export_templates.tpz
+          unzip -q /tmp/templates.tpz -d /tmp/godot-templates
+          cp -a /tmp/godot-templates/templates/. "$HOME/.local/share/godot/export_templates/4.3.stable/"
+          "$HOME/godot/Godot_v4.3-stable_linux.x86_64" --version
+          test -f "$HOME/.local/share/godot/export_templates/4.3.stable/android_debug.apk"
+
+      - name: Create Android debug keystore
         shell: bash
         run: |
           mkdir -p "$HOME/.android"
-          if [ ! -f "$HOME/.android/debug.keystore" ]; then
-            keytool -genkeypair -v \
-              -keystore "$HOME/.android/debug.keystore" \
-              -storepass android \
-              -alias androiddebugkey \
-              -keypass android \
-              -keyalg RSA \
-              -keysize 2048 \
-              -validity 10000 \
-              -dname "CN=Android Debug,O=TrollParkour,C=TR"
-          fi
+          keytool -genkeypair -v \
+            -keystore "$HOME/.android/debug.keystore" \
+            -storepass android \
+            -alias androiddebugkey \
+            -keypass android \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -dname "CN=Android Debug,O=TrollParkour,C=TR"
 
-      - name: Export Android APK with Godot 4.3
-        id: godot_export
-        uses: firebelley/godot-export@v8.0.0
-        with:
-          godot_executable_download_url: https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_linux.x86_64.zip
-          godot_export_templates_download_url: https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_export_templates.tpz
-          relative_project_path: ./
-          relative_export_path: build
-          export_debug: true
-          cache: true
-          verbose: true
-          presets_to_export: Android
-
-      - name: Collect APK
+      - name: Configure Godot Android paths
         shell: bash
         run: |
+          set -euxo pipefail
+          mkdir -p "$HOME/.config/godot"
+          cat > "$HOME/.config/godot/editor_settings-4.tres" <<EOF
+          [gd_resource type="EditorSettings" format=3]
+
+          [resource]
+          export/android/java_sdk_path = "$JAVA_HOME"
+          export/android/android_sdk_path = "$ANDROID_SDK_ROOT"
+          export/android/debug_keystore = "$HOME/.android/debug.keystore"
+          export/android/debug_keystore_user = "androiddebugkey"
+          export/android/debug_keystore_pass = "android"
+          EOF
+          cat "$HOME/.config/godot/editor_settings-4.tres"
+          test -x "$JAVA_HOME/bin/java"
+          test -x "$ANDROID_SDK_ROOT/platform-tools/adb"
+          test -x "$ANDROID_SDK_ROOT/build-tools/34.0.0/apksigner"
+
+      - name: Import Godot project
+        shell: bash
+        run: |
+          "$HOME/godot/Godot_v4.3-stable_linux.x86_64" --headless --path . --import --verbose
+
+      - name: Export Android APK
+        shell: bash
+        run: |
+          set -euxo pipefail
           mkdir -p artifact
-          APK_PATH="$(find . -type f -name '*.apk' -print -quit)"
-          if [ -z "$APK_PATH" ]; then
-            echo "No APK generated."
-            find . -maxdepth 5 -type f | sort
-            exit 1
-          fi
-          echo "APK: $APK_PATH"
-          cp "$APK_PATH" artifact/TrollParkour-v0.1-debug.apk
+          "$HOME/godot/Godot_v4.3-stable_linux.x86_64" \
+            --headless \
+            --path . \
+            --export-debug Android \
+            artifact/TrollParkour-v0.1-debug.apk \
+            --verbose
+          test -s artifact/TrollParkour-v0.1-debug.apk
           ls -lh artifact/TrollParkour-v0.1-debug.apk
+
+      - name: Verify APK signature
+        shell: bash
+        run: |
+          "$ANDROID_SDK_ROOT/build-tools/34.0.0/apksigner" verify \
+            --verbose \
+            --print-certs \
+            artifact/TrollParkour-v0.1-debug.apk
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
