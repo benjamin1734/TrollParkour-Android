@@ -111,7 +111,24 @@ jobs:
             exit 1
           fi
 
-      - name: Validate all 63 maps
+      - name: Validate death echo retry
+        shell: bash
+        run: |
+          set -euo pipefail
+          LOG=/tmp/trollparkour-death-echo.log
+          "$HOME/godot/Godot_v4.3-stable_linux.x86_64" \
+            --headless \
+            --path . \
+            --script res://tests/validate_v26_death_echo.gd \
+            --verbose >"$LOG" 2>&1
+          cat "$LOG"
+          grep -q "DEATH_ECHO_OK" "$LOG"
+          if grep -Eq "SCRIPT ERROR|Parse Error|Invalid call|Invalid access|Nonexistent function|Attempt to call|DEATH_ECHO_VALIDATE" "$LOG"; then
+            echo "Death echo validation error detected"
+            exit 1
+          fi
+
+      - name: Validate all 66 maps
         shell: bash
         run: |
           set -euo pipefail
@@ -123,8 +140,8 @@ jobs:
             -- \
             --validate-all-levels >"$LOG" 2>&1
           cat "$LOG"
-          grep -q "ALL_LEVELS_OK:63" "$LOG"
-          test "$(grep -c 'LEVEL_VALIDATE_OK:' "$LOG")" -eq 63
+          grep -q "ALL_LEVELS_OK:66" "$LOG"
+          test "$(grep -c 'LEVEL_VALIDATE_OK:' "$LOG")" -eq 66
           if grep -Eq "SCRIPT ERROR|Parse Error|Invalid call|Invalid access|Nonexistent function|Attempt to call|LEVEL_VALIDATE_FAIL|ALL_LEVELS_FAILED" "$LOG"; then
             echo "Full-map validation error detected"
             exit 1
@@ -139,10 +156,10 @@ jobs:
             --headless \
             --path . \
             --export-debug Android \
-            artifact/TrollParkour-v2.5-debug.apk \
+            artifact/TrollParkour-v2.6-debug.apk \
             --verbose
-          test -s artifact/TrollParkour-v2.5-debug.apk
-          ls -lh artifact/TrollParkour-v2.5-debug.apk
+          test -s artifact/TrollParkour-v2.6-debug.apk
+          ls -lh artifact/TrollParkour-v2.6-debug.apk
 
       - name: Verify APK signature
         shell: bash
@@ -150,12 +167,12 @@ jobs:
           "$ANDROID_SDK_ROOT/build-tools/34.0.0/apksigner" verify \
             --verbose \
             --print-certs \
-            artifact/TrollParkour-v2.5-debug.apk
+            artifact/TrollParkour-v2.6-debug.apk
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: TrollParkour-v2.5-Android-APK
-          path: artifact/TrollParkour-v2.5-debug.apk
+          name: TrollParkour-v2.6-Android-APK
+          path: artifact/TrollParkour-v2.6-debug.apk
           if-no-files-found: error
           retention-days: 30
