@@ -31,15 +31,15 @@ func _process(delta: float) -> void:
     super._process(delta)
     if delta <= 0.0:
         return
-    var max_step := V23_MAX_CHASE_SPEED * delta
+    var max_step: float = V23_MAX_CHASE_SPEED * delta
     for id in v23_barriers.keys():
         var state: Dictionary = v23_barriers[id]
-        var node = state.get("node")
+        var node: Node2D = state.get("node") as Node2D
         if not is_instance_valid(node):
             v23_barriers.erase(id)
             continue
-        var last_x := float(state.get("last_x", node.position.x))
-        var dx := node.position.x - last_x
+        var last_x: float = float(state.get("last_x", node.position.x))
+        var dx: float = node.position.x - last_x
         if absf(dx) > max_step:
             node.position.x = last_x + clampf(dx, -max_step, max_step)
         state["last_x"] = node.position.x
@@ -54,7 +54,9 @@ func _build_level(c: int, p: int) -> void:
         super._build_level(c, p)
 
 func _floor_with_gaps(width: float, gaps: Array[Vector2]) -> void:
-    v23_level_gaps = gaps.duplicate()
+    v23_level_gaps.clear()
+    for gap in gaps:
+        v23_level_gaps.append(gap)
     super._floor_with_gaps(width, gaps)
 
 func _finish(pos: Vector2) -> Area2D:
@@ -88,7 +90,7 @@ func _camera_trick(amount: float = 0.065) -> void:
     super._camera_trick(clampf(amount, -0.055, 0.055))
 
 func _boulder(pos: Vector2, speed: float, radius: float) -> void:
-    var capped_speed := signf(speed) * minf(absf(speed), 430.0)
+    var capped_speed: float = signf(speed) * minf(absf(speed), 430.0)
     super._boulder(pos, capped_speed, minf(radius, 82.0))
 
 func _falling_boulder(pos: Vector2, radius: float, delay: float) -> Area2D:
@@ -208,15 +210,15 @@ func _v23_level_3_3() -> void:
 
 func _v23_run_validation() -> void:
     await get_tree().process_frame
-    var failures := 0
-    var checked := 0
+    var failures: int = 0
+    var checked: int = 0
     for c in range(1, 21):
         for p in range(1, 4):
             _start_level(c, p)
             await get_tree().process_frame
             await get_tree().process_frame
             checked += 1
-            var level_failures := _v23_validate_current_level(c, p)
+            var level_failures: int = _v23_validate_current_level(c, p)
             failures += level_failures
             if level_failures == 0:
                 print("LEVEL_VALIDATE_OK:%d-%d" % [c, p])
@@ -230,7 +232,7 @@ func _v23_run_validation() -> void:
         get_tree().quit(1)
 
 func _v23_validate_current_level(c: int, p: int) -> int:
-    var failures := 0
+    var failures: int = 0
     if not is_instance_valid(world):
         push_error("VALIDATE %d-%d world missing" % [c, p])
         return 1
@@ -238,8 +240,8 @@ func _v23_validate_current_level(c: int, p: int) -> int:
         push_error("VALIDATE %d-%d player missing" % [c, p])
         failures += 1
 
-    var finish_count := 0
-    var finish_x := -1.0
+    var finish_count: int = 0
+    var finish_x: float = -1.0
     for child in world.get_children():
         if child.has_meta("v23_finish"):
             finish_count += 1
@@ -253,7 +255,7 @@ func _v23_validate_current_level(c: int, p: int) -> int:
         failures += 1
 
     for gap in v23_level_gaps:
-        var gap_width := gap.y - gap.x
+        var gap_width: float = gap.y - gap.x
         if gap_width > V23_MAX_NAKED_GAP and not _v23_gap_has_bridge(gap):
             push_error("VALIDATE %d-%d unbridged gap %.1f-%.1f width %.1f" % [c, p, gap.x, gap.y, gap_width])
             failures += 1
