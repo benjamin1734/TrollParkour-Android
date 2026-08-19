@@ -85,7 +85,6 @@ jobs:
           export/android/debug_keystore_user = "androiddebugkey"
           export/android/debug_keystore_pass = "android"
           EOF
-          cat "$HOME/.config/godot/editor_settings-4.tres"
           test -x "$JAVA_HOME/bin/java"
           test -x "$ANDROID_SDK_ROOT/platform-tools/adb"
           test -x "$ANDROID_SDK_ROOT/build-tools/34.0.0/apksigner"
@@ -104,10 +103,10 @@ jobs:
             --headless \
             --path . \
             --export-debug Android \
-            artifact/TrollParkour-v0.9-debug.apk \
+            artifact/TrollParkour-v1.0-debug.apk \
             --verbose
-          test -s artifact/TrollParkour-v0.9-debug.apk
-          ls -lh artifact/TrollParkour-v0.9-debug.apk
+          test -s artifact/TrollParkour-v1.0-debug.apk
+          ls -lh artifact/TrollParkour-v1.0-debug.apk
 
       - name: Verify APK signature
         shell: bash
@@ -115,12 +114,12 @@ jobs:
           "$ANDROID_SDK_ROOT/build-tools/34.0.0/apksigner" verify \
             --verbose \
             --print-certs \
-            artifact/TrollParkour-v0.9-debug.apk
+            artifact/TrollParkour-v1.0-debug.apk
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: TrollParkour-v0.9-Android-APK
-          path: artifact/TrollParkour-v0.9-debug.apk
+          name: TrollParkour-v1.0-Android-APK
+          path: artifact/TrollParkour-v1.0-debug.apk
           if-no-files-found: error
           retention-days: 30
