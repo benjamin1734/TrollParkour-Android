@@ -111,6 +111,23 @@ jobs:
             exit 1
           fi
 
+      - name: Validate death echo retry
+        shell: bash
+        run: |
+          set -euo pipefail
+          LOG=/tmp/trollparkour-death-echo.log
+          "$HOME/godot/Godot_v4.3-stable_linux.x86_64" \
+            --headless \
+            --path . \
+            --script res://tests/validate_v26_death_echo.gd \
+            --verbose >"$LOG" 2>&1
+          cat "$LOG"
+          grep -q "DEATH_ECHO_OK" "$LOG"
+          if grep -Eq "SCRIPT ERROR|Parse Error|Invalid call|Invalid access|Nonexistent function|Attempt to call|DEATH_ECHO_VALIDATE" "$LOG"; then
+            echo "Death echo validation error detected"
+            exit 1
+          fi
+
       - name: Validate all 66 maps
         shell: bash
         run: |
