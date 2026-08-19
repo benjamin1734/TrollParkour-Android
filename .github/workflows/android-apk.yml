@@ -104,10 +104,10 @@ jobs:
             --headless \
             --path . \
             --export-debug Android \
-            artifact/TrollParkour-v0.5-debug.apk \
+            artifact/TrollParkour-v0.6-debug.apk \
             --verbose
-          test -s artifact/TrollParkour-v0.5-debug.apk
-          ls -lh artifact/TrollParkour-v0.5-debug.apk
+          test -s artifact/TrollParkour-v0.6-debug.apk
+          ls -lh artifact/TrollParkour-v0.6-debug.apk
 
       - name: Verify APK signature
         shell: bash
@@ -115,12 +115,12 @@ jobs:
           "$ANDROID_SDK_ROOT/build-tools/34.0.0/apksigner" verify \
             --verbose \
             --print-certs \
-            artifact/TrollParkour-v0.5-debug.apk
+            artifact/TrollParkour-v0.6-debug.apk
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: TrollParkour-v0.5-Android-APK
-          path: artifact/TrollParkour-v0.5-debug.apk
+          name: TrollParkour-v0.6-Android-APK
+          path: artifact/TrollParkour-v0.6-debug.apk
           if-no-files-found: error
           retention-days: 30
