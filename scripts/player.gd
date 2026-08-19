@@ -14,6 +14,7 @@ const JUMP_BUFFER := 0.12
 
 var alive := true
 var input_enabled := true
+var controls_reversed := false
 var _coyote := 0.0
 var _jump_buffer := 0.0
 
@@ -35,6 +36,8 @@ func _physics_process(delta: float) -> void:
         _coyote = 0.0
         jumped.emit()
     var axis := Input.get_axis("move_left", "move_right") if input_enabled else 0.0
+    if controls_reversed:
+        axis *= -1.0
     var accel := ACCELERATION if is_on_floor() else AIR_ACCELERATION
     velocity.x = move_toward(velocity.x, axis * SPEED, accel * delta) if absf(axis) > 0.01 else move_toward(velocity.x, 0.0, FRICTION * delta)
     move_and_slide()
@@ -46,5 +49,6 @@ func die() -> void:
         return
     alive = false
     input_enabled = false
+    controls_reversed = false
     velocity = Vector2.ZERO
     died.emit()
