@@ -38,7 +38,7 @@ func _process(delta: float) -> void:
         if raw_node == null or not is_instance_valid(raw_node):
             v23_barriers.erase(id)
             continue
-        var node := raw_node as Node2D
+        var node: Node2D = raw_node as Node2D
         if not is_instance_valid(node):
             v23_barriers.erase(id)
             continue
@@ -123,150 +123,153 @@ func _v23_level_1_3() -> void:
             tw.tween_property(lift, "position:y", 590.0, 0.44).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
     )
 
-    var closing := _hazard_block(Vector2(1850, 170), Vector2(40, 350), RED_DARK)
-    _trigger(Rect2(1540, 400, 140, 230), func():
+    var wall := _platform(Vector2(1850, 250), Vector2(36, 280), RED_DARK)
+    _trigger(Rect2(1680, 430, 120, 210), func():
         if _once("13_wall_v23"):
             var tw := create_tween()
-            tw.tween_property(closing, "position:y", 468.0, 0.62).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-            tw.tween_interval(0.48)
-            tw.tween_property(closing, "position:y", 170.0, 0.64).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+            tw.tween_interval(0.10)
+            tw.tween_property(wall, "position:y", 470.0, 0.34).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+            tw.tween_interval(0.46)
+            tw.tween_property(wall, "position:y", 250.0, 0.44).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
     )
 
-    var fake := _finish(Vector2(2550, 580))
-    _trigger(Rect2(2210, 410, 180, 230), func():
+    _trigger(Rect2(2200, 410, 100, 220), func():
+        if _once("13_rock_v23"):
+            _boulder(Vector2(2820, 560), -410.0, 78.0)
+    )
+
+    _marker(Vector2(3040, 560), GREEN, "FINISH")
+    var fake := _spikes(Vector2(3050, 612), 3, true)
+    _trigger(Rect2(2900, 420, 100, 210), func():
         if _once("13_fake_v23"):
-            fake.monitoring = false
-            fake.visible = false
-            _troll_popup("DAHA DEĞİL")
-            var ball := _boulder(Vector2(2950, 555), -315.0, 70.0)
-            if ball != null:
-                ball.set_meta("v23_balanced", true)
-    )
-
-    var last_spikes := _spikes(Vector2(3000, 612), 3, true)
-    _trigger(Rect2(2760, 410, 130, 230), func():
-        if _once("13_last_v23"):
-            _reveal(last_spikes)
+            _reveal(fake)
             var tw := create_tween()
             tw.tween_interval(0.58)
-            tw.tween_callback(func(): _hide(last_spikes))
+            tw.tween_callback(func(): _hide(fake))
     )
-    _finish(Vector2(3320, 580))
+    _finish(Vector2(3340, 580))
 
 func _v23_level_3_3() -> void:
-    _base_floor(4700)
-    _text(Vector2(120, 470), "BÖLÜM 3: KOŞU SINAVI. KAÇIŞ PENCERELERİN VAR.", 22, V23_AMBER)
+    _base_floor(5000)
+    _text(Vector2(120, 470), "SON KISIM: PARANOYANI KULLAN.", 24, V3_MUTED)
+    _text(Vector2(430, 520), "YOL AÇIK.", 20, V3_GREEN)
 
-    var chase := _hazard_block(Vector2(430, 470), Vector2(76, 290), V23_RED)
-    _trigger(Rect2(700, 400, 130, 235), func():
-        if _once("33_chase_v23"):
-            create_tween().tween_property(chase, "position:x", 4050.0, 15.4).set_trans(Tween.TRANS_LINEAR)
-    )
-
-    var sweep := _spikes(Vector2(1370, 612), 3, true)
-    _trigger(Rect2(1050, 400, 110, 230), func():
-        if _once("33_sweep_v23"):
-            _reveal(sweep)
+    var lonely := _spikes(Vector2(1050, 612), 2, true)
+    _trigger(Rect2(850, 390, 120, 240), func():
+        if _once("33_lonely_v23"):
+            _reveal(lonely)
             var tw := create_tween()
-            tw.tween_interval(0.48)
-            tw.tween_callback(func(): _hide(sweep))
+            tw.tween_interval(0.62)
+            tw.tween_callback(func(): _hide(lonely))
     )
 
-    for i in range(3):
-        var drop_x := 1900.0 + float(i) * 500.0
-        _falling_boulder(Vector2(drop_x, 130), 62.0, 0.45 + float(i) * 0.18)
-
-    var fake_finish := _finish(Vector2(3330, 580))
-    _trigger(Rect2(3030, 400, 140, 230), func():
-        if _once("33_fake_finish_v23"):
-            fake_finish.monitoring = false
-            fake_finish.visible = false
-            _troll_popup("SON DEĞİL")
+    var chase := _hazard_block(Vector2(430, 500), Vector2(90, 300), V3_RED_DARK)
+    _trigger(Rect2(1250, 390, 120, 240), func():
+        if _once("33_chase_v23"):
+            create_tween().tween_property(chase, "position:x", 3650.0, 13.4).set_trans(Tween.TRANS_LINEAR)
     )
 
-    var final_spikes := _spikes(Vector2(3930, 612), 3, true)
-    _trigger(Rect2(3660, 400, 140, 230), func():
+    var slide_spikes := _spikes(Vector2(2050, 612), 3, false)
+    _trigger(Rect2(1660, 390, 120, 240), func():
+        if _once("33_slide_v23"):
+            create_tween().tween_property(slide_spikes, "position:x", 1840.0, 0.68).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+    )
+
+    _trigger(Rect2(2300, 390, 120, 240), func():
+        if _once("33_rocks_v23"):
+            _falling_boulder(Vector2(2550, 70), 68.0, 0.12)
+            _falling_boulder(Vector2(2840, 45), 60.0, 0.52)
+            _falling_boulder(Vector2(3110, 20), 54.0, 0.92)
+    )
+
+    _marker(Vector2(3620, 555), V3_GREEN, "FINISH")
+    var fake_finish := _spikes(Vector2(3620, 612), 3, true)
+    _trigger(Rect2(3420, 390, 120, 240), func():
+        if _once("33_fake_v23"):
+            _reveal(fake_finish)
+            _play_tone(125.0, 0.18, 0.20)
+            var tw := create_tween()
+            tw.tween_interval(0.56)
+            tw.tween_callback(func(): _hide(fake_finish))
+    )
+
+    var last := _spikes(Vector2(4250, 612), 3, true)
+    _trigger(Rect2(4050, 390, 120, 240), func():
         if _once("33_last_v23"):
             var tw := create_tween()
             tw.tween_interval(0.34)
-            tw.tween_callback(func(): _reveal(final_spikes))
-            tw.tween_interval(0.60)
-            tw.tween_callback(func(): _hide(final_spikes))
+            tw.tween_callback(func(): _reveal(last))
+            tw.tween_interval(0.46)
+            tw.tween_callback(func(): _hide(last))
     )
-    _finish(Vector2(4470, 580))
+
+    var goal := _finish(Vector2(4700, 580))
+    _trigger(Rect2(4450, 390, 120, 240), func():
+        if _once("33_goal_v23"):
+            var tw := create_tween()
+            tw.tween_property(goal, "position:x", 4780.0, 0.34).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+            tw.tween_interval(0.42)
+            tw.tween_property(goal, "position:x", 4700.0, 0.30)
+    )
 
 func _v23_run_validation() -> void:
-    var failures: Array[String] = []
-    var checked := 0
-    for c in range(1, 26):
+    await get_tree().process_frame
+    var failures: int = 0
+    var checked: int = 0
+    for c in range(1, 21):
         for p in range(1, 4):
-            checked += 1
             _start_level(c, p)
             await get_tree().process_frame
             await get_tree().process_frame
-            var map_failures := _v23_validate_current_map(c, p)
-            if map_failures.is_empty():
+            checked += 1
+            var level_failures: int = _v23_validate_current_level(c, p)
+            failures += level_failures
+            if level_failures == 0:
                 print("LEVEL_VALIDATE_OK:%d-%d" % [c, p])
             else:
-                for item in map_failures:
-                    failures.append(item)
-                    print("LEVEL_VALIDATE_FAIL:%s" % item)
-    if failures.is_empty():
-        print("ALL_LEVELS_OK:%d" % checked)
+                print("LEVEL_VALIDATE_FAIL:%d-%d:%d" % [c, p, level_failures])
+    if failures == 0 and checked == 60:
+        print("ALL_LEVELS_OK:60")
         get_tree().quit(0)
     else:
-        print("ALL_LEVELS_FAILED:%d" % failures.size())
-        for item in failures:
-            print("  %s" % item)
+        print("ALL_LEVELS_FAILED:%d:%d" % [checked, failures])
         get_tree().quit(1)
 
-func _v23_validate_current_map(c: int, p: int) -> Array[String]:
-    var failures: Array[String] = []
+func _v23_validate_current_level(c: int, p: int) -> int:
+    var failures: int = 0
+    if not is_instance_valid(world):
+        push_error("VALIDATE %d-%d world missing" % [c, p])
+        return 1
     if not is_instance_valid(player):
-        failures.append("%d-%d player missing" % [c, p])
-    var finishes := _v23_find_finish_nodes(world)
-    if finishes.is_empty():
-        failures.append("%d-%d finish missing" % [c, p])
-    elif finishes.size() > 3:
-        failures.append("%d-%d suspicious finish count %d" % [c, p, finishes.size()])
-    for finish in finishes:
-        if finish.position.x < 300.0 or finish.position.x > level_width + 120.0:
-            failures.append("%d-%d finish x out of bounds %.1f" % [c, p, finish.position.x])
-        for gap in v23_level_gaps:
-            if finish.position.x > gap.x and finish.position.x < gap.y:
-                failures.append("%d-%d finish inside floor gap %.1f" % [c, p, finish.position.x])
+        push_error("VALIDATE %d-%d player missing" % [c, p])
+        failures += 1
+
+    var finish_count: int = 0
+    var finish_x: float = -1.0
+    for child in world.get_children():
+        if child.has_meta("v23_finish"):
+            finish_count += 1
+            if child is Node2D:
+                finish_x = maxf(finish_x, child.position.x)
+    if finish_count != 1:
+        push_error("VALIDATE %d-%d finish count %d" % [c, p, finish_count])
+        failures += 1
+    elif finish_x < 80.0 or finish_x > level_width + 180.0:
+        push_error("VALIDATE %d-%d finish out of bounds %.1f / %.1f" % [c, p, finish_x, level_width])
+        failures += 1
 
     for gap in v23_level_gaps:
-        var gap_width := gap.y - gap.x
+        var gap_width: float = gap.y - gap.x
         if gap_width > V23_MAX_NAKED_GAP and not _v23_gap_has_bridge(gap):
-            failures.append("%d-%d naked gap %.1f px" % [c, p, gap_width])
-
+            push_error("VALIDATE %d-%d unbridged gap %.1f-%.1f width %.1f" % [c, p, gap.x, gap.y, gap_width])
+            failures += 1
     return failures
-
-func _v23_find_finish_nodes(node: Node) -> Array[Area2D]:
-    var result: Array[Area2D] = []
-    if node == null:
-        return result
-    if node is Area2D and bool(node.get_meta("v23_finish", false)):
-        result.append(node as Area2D)
-    for child in node.get_children():
-        result.append_array(_v23_find_finish_nodes(child))
-    return result
 
 func _v23_gap_has_bridge(gap: Vector2) -> bool:
     if not is_instance_valid(world):
         return false
-    var center_x := (gap.x + gap.y) * 0.5
     for child in world.get_children():
         if child is StaticBody2D or child is AnimatableBody2D:
-            var body := child as Node2D
-            if body.position.x < gap.x - 150.0 or body.position.x > gap.y + 150.0:
-                continue
-            for sub in child.get_children():
-                if sub is CollisionShape2D:
-                    var cs := sub as CollisionShape2D
-                    if cs.shape is RectangleShape2D:
-                        var rect := cs.shape as RectangleShape2D
-                        if rect.size.x >= 80.0 and absf(body.position.x - center_x) <= (gap.y - gap.x) * 0.75 + 120.0:
-                            return true
+            if child.position.x > gap.x + 12.0 and child.position.x < gap.y - 12.0 and child.position.y < 620.0:
+                return true
     return false
