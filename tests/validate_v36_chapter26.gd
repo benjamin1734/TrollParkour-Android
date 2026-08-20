@@ -70,9 +70,9 @@ func _run() -> void:
             quit(1)
             return
 
-    var next_from_25 := game._v34_next_dev_target(25, 3)
-    var next_inside_26 := game._v34_next_dev_target(26, 1)
-    var after_26 := game._v34_next_dev_target(26, 3)
+    var next_from_25: Vector2i = game._v34_next_dev_target(25, 3)
+    var next_inside_26: Vector2i = game._v34_next_dev_target(26, 1)
+    var after_26: Vector2i = game._v34_next_dev_target(26, 3)
     if next_from_25 != Vector2i(26, 1):
         push_error("V36_VALIDATE: dev 25-3 does not continue to 26-1")
         quit(1)
