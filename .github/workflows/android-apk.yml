@@ -162,6 +162,57 @@ jobs:
             exit 1
           fi
 
+      - name: Validate lazy moving platforms
+        shell: bash
+        run: |
+          set -euo pipefail
+          LOG=/tmp/trollparkour-mover-activation.log
+          "$HOME/godot/Godot_v4.3-stable_linux.x86_64" \
+            --headless \
+            --path . \
+            --script res://tests/validate_v30_mover_activation.gd \
+            --verbose >"$LOG" 2>&1
+          cat "$LOG"
+          grep -q "MOVER_ACTIVATION_OK" "$LOG"
+          if grep -Eq "SCRIPT ERROR|Parse Error|Invalid call|Invalid access|Nonexistent function|Attempt to call|MOVER_VALIDATE" "$LOG"; then
+            echo "Moving platform validation error detected"
+            exit 1
+          fi
+
+      - name: Validate boulder balance
+        shell: bash
+        run: |
+          set -euo pipefail
+          LOG=/tmp/trollparkour-boulder-balance.log
+          "$HOME/godot/Godot_v4.3-stable_linux.x86_64" \
+            --headless \
+            --path . \
+            --script res://tests/validate_v30_boulder_balance.gd \
+            --verbose >"$LOG" 2>&1
+          cat "$LOG"
+          grep -q "BOULDER_BALANCE_OK" "$LOG"
+          if grep -Eq "SCRIPT ERROR|Parse Error|Invalid call|Invalid access|Nonexistent function|Attempt to call|BOULDER_VALIDATE" "$LOG"; then
+            echo "Boulder balance validation error detected"
+            exit 1
+          fi
+
+      - name: Validate idle anti-spoiler across 75 maps
+        shell: bash
+        run: |
+          set -euo pipefail
+          LOG=/tmp/trollparkour-idle-spoilers.log
+          "$HOME/godot/Godot_v4.3-stable_linux.x86_64" \
+            --headless \
+            --path . \
+            --script res://tests/validate_v30_idle_spoilers.gd \
+            --verbose >"$LOG" 2>&1
+          cat "$LOG"
+          grep -q "IDLE_SPOILER_OK:75" "$LOG"
+          if grep -Eq "SCRIPT ERROR|Parse Error|Invalid call|Invalid access|Nonexistent function|Attempt to call|IDLE_SPOILER_VALIDATE" "$LOG"; then
+            echo "Idle anti-spoiler validation error detected"
+            exit 1
+          fi
+
       - name: Validate all 75 maps
         shell: bash
         run: |
@@ -190,10 +241,10 @@ jobs:
             --headless \
             --path . \
             --export-debug Android \
-            artifact/TrollParkour-v2.9-debug.apk \
+            artifact/TrollParkour-v3.0-debug.apk \
             --verbose
-          test -s artifact/TrollParkour-v2.9-debug.apk
-          ls -lh artifact/TrollParkour-v2.9-debug.apk
+          test -s artifact/TrollParkour-v3.0-debug.apk
+          ls -lh artifact/TrollParkour-v3.0-debug.apk
 
       - name: Verify APK signature
         shell: bash
@@ -201,12 +252,12 @@ jobs:
           "$ANDROID_SDK_ROOT/build-tools/34.0.0/apksigner" verify \
             --verbose \
             --print-certs \
-            artifact/TrollParkour-v2.9-debug.apk
+            artifact/TrollParkour-v3.0-debug.apk
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: TrollParkour-v2.9-Android-APK
-          path: artifact/TrollParkour-v2.9-debug.apk
+          name: TrollParkour-v3.0-Android-APK
+          path: artifact/TrollParkour-v3.0-debug.apk
           if-no-files-found: error
           retention-days: 30
