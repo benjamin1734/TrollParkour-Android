@@ -4,7 +4,7 @@ func _initialize() -> void:
     call_deferred("_run")
 
 func _run() -> void:
-    var packed := load("res://scenes/Main.tscn") as PackedScene
+    var packed: PackedScene = load("res://scenes/Main.tscn") as PackedScene
     if packed == null:
         push_error("VISUAL_VALIDATE: main scene missing")
         quit(1)
@@ -23,7 +23,7 @@ func _run() -> void:
         push_error("VISUAL_VALIDATE: world missing")
         quit(1)
         return
-    var env := game.world.get_node_or_null("V31Environment")
+    var env: Node = game.world.get_node_or_null("V31Environment")
     if env == null or env.get_node_or_null("Far") == null or env.get_node_or_null("Mid") == null or env.get_node_or_null("Near") == null:
         push_error("VISUAL_VALIDATE: layered environment missing")
         quit(1)
@@ -41,9 +41,9 @@ func _run() -> void:
         quit(1)
         return
 
-    var hidden_spike = game._spikes(Vector2(780, 612), 3, true)
+    var hidden_spike: Area2D = game._spikes(Vector2(780, 612), 3, true) as Area2D
     await process_frame
-    var spike_decor := hidden_spike.get_node_or_null("V31SpikeDecor")
+    var spike_decor: Node2D = hidden_spike.get_node_or_null("V31SpikeDecor") as Node2D
     if spike_decor == null or spike_decor.visible:
         push_error("VISUAL_VALIDATE: hidden spike decor leaks before reveal")
         quit(1)
@@ -61,7 +61,7 @@ func _run() -> void:
         quit(1)
         return
 
-    var mover = game._moving_platform(Vector2(900, 510), Vector2(180, 24), Vector2(1120, 455), 1.2, Color("#2563eb"))
+    var mover: AnimatableBody2D = game._moving_platform(Vector2(900, 510), Vector2(180, 24), Vector2(1120, 455), 1.2, Color("#2563eb")) as AnimatableBody2D
     await process_frame
     if mover.get_node_or_null("V31PlatformSkin") == null:
         push_error("VISUAL_VALIDATE: moving platform skin missing")
@@ -82,7 +82,7 @@ func _run() -> void:
     game._start_level(21, 1)
     await process_frame
     await process_frame
-    var dark_env := game.world.get_node_or_null("V31Environment")
+    var dark_env: Node = game.world.get_node_or_null("V31Environment")
     if dark_env == null or not bool(dark_env.get_meta("dark", false)):
         push_error("VISUAL_VALIDATE: dark-era environment flag missing")
         quit(1)
