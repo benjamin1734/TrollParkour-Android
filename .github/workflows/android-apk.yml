@@ -247,6 +247,23 @@ jobs:
             exit 1
           fi
 
+      - name: Validate v3.4 2-3 and developer flow
+        shell: bash
+        run: |
+          set -euo pipefail
+          LOG=/tmp/trollparkour-v34-hotfix.log
+          "$HOME/godot/Godot_v4.3-stable_linux.x86_64" \
+            --headless \
+            --path . \
+            --script res://tests/validate_v34_hotfix.gd \
+            --verbose >"$LOG" 2>&1
+          cat "$LOG"
+          grep -q "V34_HOTFIX_OK" "$LOG"
+          if grep -Eq "SCRIPT ERROR|Parse Error|Invalid call|Invalid access|Nonexistent function|Attempt to call|V34_VALIDATE" "$LOG"; then
+            echo "v3.4 hotfix validation error detected"
+            exit 1
+          fi
+
       - name: Validate idle anti-spoiler across 75 maps
         shell: bash
         run: |
@@ -292,10 +309,10 @@ jobs:
             --headless \
             --path . \
             --export-debug Android \
-            artifact/TrollParkour-v3.3-debug.apk \
+            artifact/TrollParkour-v3.4-debug.apk \
             --verbose
-          test -s artifact/TrollParkour-v3.3-debug.apk
-          ls -lh artifact/TrollParkour-v3.3-debug.apk
+          test -s artifact/TrollParkour-v3.4-debug.apk
+          ls -lh artifact/TrollParkour-v3.4-debug.apk
 
       - name: Verify APK signature
         shell: bash
@@ -303,12 +320,12 @@ jobs:
           "$ANDROID_SDK_ROOT/build-tools/34.0.0/apksigner" verify \
             --verbose \
             --print-certs \
-            artifact/TrollParkour-v3.3-debug.apk
+            artifact/TrollParkour-v3.4-debug.apk
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: TrollParkour-v3.3-Android-APK
-          path: artifact/TrollParkour-v3.3-debug.apk
+          name: TrollParkour-v3.4-Android-APK
+          path: artifact/TrollParkour-v3.4-debug.apk
           if-no-files-found: error
           retention-days: 30
