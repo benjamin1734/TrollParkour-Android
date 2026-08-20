@@ -17,7 +17,7 @@ func _run() -> void:
     game.v22_sound_enabled = false
 
     var checked := 0
-    for c in range(1, 26):
+    for c in range(1, 27):
         for p in range(1, 4):
             game._start_level(c, p)
             await process_frame
@@ -36,11 +36,11 @@ func _run() -> void:
                     quit(1)
                     return
             checked += 1
-    if checked != 75:
+    if checked != 78:
         push_error("IDLE_SPOILER_VALIDATE: checked %d maps" % checked)
         quit(1)
         return
-    print("IDLE_SPOILER_OK:75")
+    print("IDLE_SPOILER_OK:78")
     quit(0)
 
 func _collect_collision_positions(node: Node, player: Node, out: Dictionary) -> void:
