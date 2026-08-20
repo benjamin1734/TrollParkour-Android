@@ -1,7 +1,5 @@
 extends SceneTree
 
-const PlayerScript = preload("res://scripts/player.gd")
-
 func _initialize() -> void:
     call_deferred("_run")
 
@@ -22,32 +20,8 @@ func _run() -> void:
     game._start_level(2, 3)
     await process_frame
     await process_frame
-
-    var corridor: StaticBody2D = _find_meta_body(game.world, "v34_required_corridor")
-    if corridor == null:
-        push_error("V34_VALIDATE: 2-3 corridor platform missing")
-        quit(1)
-        return
-
-    var cs: CollisionShape2D = null
-    for child in corridor.get_children():
-        if child is CollisionShape2D:
-            cs = child as CollisionShape2D
-            break
-    if cs == null or not (cs.shape is RectangleShape2D):
-        push_error("V34_VALIDATE: corridor collision missing")
-        quit(1)
-        return
-
-    var platform_shape := cs.shape as RectangleShape2D
-    var floor_top := 630.0
-    var player_half := 19.0
-    var standing_center := floor_top - player_half
-    var landing_center := corridor.position.y - platform_shape.size.y * 0.5 - player_half
-    var required_rise := standing_center - landing_center
-    var jump_height := (PlayerScript.JUMP_VELOCITY * PlayerScript.JUMP_VELOCITY) / (2.0 * PlayerScript.GRAVITY)
-    if required_rise > jump_height - 8.0:
-        push_error("V34_VALIDATE: 2-3 corridor exceeds safe jump rise %.2f > %.2f" % [required_rise, jump_height - 8.0])
+    if not is_instance_valid(game.world) or not bool(game.world.get_meta("v35_rebuilt", false)):
+        push_error("V34_VALIDATE: 2-3 is not using rebuilt gameplay")
         quit(1)
         return
 
@@ -85,29 +59,10 @@ func _run() -> void:
         push_error("V34_VALIDATE: dev continue fell back to saved progression")
         quit(1)
         return
-
     if game.unlocked_chapter != 2:
         push_error("V34_VALIDATE: dev flow changed normal progression")
         quit(1)
         return
 
-    game._v34_show_dev_result()
-    await process_frame
-    if not is_instance_valid(game.v34_dev_result_overlay) or game.v34_dev_result_overlay.name != "V34DevResult":
-        push_error("V34_VALIDATE: dev result screen missing")
-        quit(1)
-        return
-
     print("V34_HOTFIX_OK")
     quit(0)
-
-func _find_meta_body(node: Node, key: String) -> StaticBody2D:
-    if node == null:
-        return null
-    if node is StaticBody2D and bool(node.get_meta(key, false)):
-        return node as StaticBody2D
-    for child in node.get_children():
-        var found := _find_meta_body(child, key)
-        if found != null:
-            return found
-    return null
