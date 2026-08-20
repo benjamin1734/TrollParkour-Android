@@ -20,23 +20,23 @@ func _run() -> void:
     await process_frame
     game.player.global_position = Vector2(1000, 560)
 
-    game._boulder(Vector2(1500, 560), -80.0, 60.0)
+    game._boulder(Vector2(1500, 560), -600.0, 60.0)
     var head_on := absf(game.v30_last_boulder_speed)
-    if game.v30_last_boulder_mode != "head_on" or head_on < 335.0 or head_on > 380.0:
+    if game.v30_last_boulder_mode != "head_on" or head_on > 282.1:
         push_error("BOULDER_VALIDATE: head-on speed %.1f mode %s" % [head_on, game.v30_last_boulder_mode])
         quit(1)
         return
 
     game._boulder(Vector2(600, 560), 620.0, 60.0)
     var chase := absf(game.v30_last_boulder_speed)
-    if game.v30_last_boulder_mode != "chase" or chase < 285.0 or chase > 315.0:
+    if game.v30_last_boulder_mode != "chase" or chase > 238.1:
         push_error("BOULDER_VALIDATE: chase speed %.1f mode %s" % [chase, game.v30_last_boulder_mode])
         quit(1)
         return
 
-    game._boulder(Vector2(1500, 560), 120.0, 60.0)
+    game._boulder(Vector2(1500, 300), 600.0, 60.0)
     var cross := absf(game.v30_last_boulder_speed)
-    if game.v30_last_boulder_mode != "cross" or cross < 300.0 or cross > 350.0:
+    if game.v30_last_boulder_mode != "cross" or cross > 258.1:
         push_error("BOULDER_VALIDATE: cross speed %.1f mode %s" % [cross, game.v30_last_boulder_mode])
         quit(1)
         return

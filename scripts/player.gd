@@ -11,30 +11,47 @@ const GRAVITY := 1850.0
 const JUMP_VELOCITY := -650.0
 const COYOTE_TIME := 0.10
 const JUMP_BUFFER := 0.12
+const MAX_JUMPS := 2
 
 var alive := true
 var input_enabled := true
 var controls_reversed := false
 var _coyote := 0.0
 var _jump_buffer := 0.0
+var _jumps_used := 0
 
 func _physics_process(delta: float) -> void:
     if not alive:
         return
-    if is_on_floor():
+
+    var grounded := is_on_floor()
+    if grounded:
         _coyote = COYOTE_TIME
+        _jumps_used = 0
     else:
         _coyote = maxf(0.0, _coyote - delta)
         velocity.y += GRAVITY * delta
+
     if Input.is_action_just_pressed("jump"):
         _jump_buffer = JUMP_BUFFER
     else:
         _jump_buffer = maxf(0.0, _jump_buffer - delta)
-    if input_enabled and _jump_buffer > 0.0 and _coyote > 0.0:
-        velocity.y = JUMP_VELOCITY
-        _jump_buffer = 0.0
-        _coyote = 0.0
-        jumped.emit()
+
+    if input_enabled and _jump_buffer > 0.0:
+        var can_ground_jump := _coyote > 0.0 and _jumps_used == 0
+        var can_air_jump := not grounded and _jumps_used < MAX_JUMPS
+        if can_ground_jump or can_air_jump:
+            if can_ground_jump:
+                _jumps_used = 1
+            elif _jumps_used == 0:
+                _jumps_used = MAX_JUMPS
+            else:
+                _jumps_used += 1
+            velocity.y = JUMP_VELOCITY
+            _jump_buffer = 0.0
+            _coyote = 0.0
+            jumped.emit()
+
     var axis := Input.get_axis("move_left", "move_right") if input_enabled else 0.0
     if controls_reversed:
         axis *= -1.0
@@ -51,4 +68,7 @@ func die() -> void:
     input_enabled = false
     controls_reversed = false
     velocity = Vector2.ZERO
+    _jump_buffer = 0.0
+    _coyote = 0.0
+    _jumps_used = 0
     died.emit()

@@ -36,13 +36,22 @@ func _run() -> void:
         quit(1)
         return
 
-    var activation := float(mover.get_meta("v30_activation_distance", 420.0))
-    game.player.global_position.x = start.x - minf(220.0, activation - 60.0)
+    game.player.input_enabled = false
+    game.player.global_position = Vector2(start.x - 220.0, start.y)
+    game.player.velocity.x = 80.0
+    await process_frame
+    await create_timer(0.12).timeout
+    if bool(mover.get_meta("v30_mover_activated", false)):
+        push_error("MOVER_VALIDATE: platform activated while player was still 220px away")
+        quit(1)
+        return
+
+    game.player.global_position = Vector2(start.x - 80.0, start.y)
     game.player.velocity.x = 80.0
     await process_frame
     await create_timer(0.20).timeout
     if not bool(mover.get_meta("v30_mover_activated", false)):
-        push_error("MOVER_VALIDATE: platform did not activate on approach")
+        push_error("MOVER_VALIDATE: platform did not activate at close range")
         quit(1)
         return
     if mover.position.distance_to(start) < 1.0:

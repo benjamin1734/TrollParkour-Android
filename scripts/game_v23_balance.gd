@@ -34,7 +34,11 @@ func _process(delta: float) -> void:
     var max_step: float = V23_MAX_CHASE_SPEED * delta
     for id in v23_barriers.keys():
         var state: Dictionary = v23_barriers[id]
-        var node: Node2D = state.get("node") as Node2D
+        var raw_node = state.get("node")
+        if raw_node == null or not is_instance_valid(raw_node):
+            v23_barriers.erase(id)
+            continue
+        var node: Node2D = raw_node as Node2D
         if not is_instance_valid(node):
             v23_barriers.erase(id)
             continue
