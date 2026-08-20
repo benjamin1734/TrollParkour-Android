@@ -230,6 +230,23 @@ jobs:
             exit 1
           fi
 
+      - name: Validate visual overhaul phase 3
+        shell: bash
+        run: |
+          set -euo pipefail
+          LOG=/tmp/trollparkour-visual-phase3.log
+          "$HOME/godot/Godot_v4.3-stable_linux.x86_64" \
+            --headless \
+            --path . \
+            --script res://tests/validate_v33_visual_phase3.gd \
+            --verbose >"$LOG" 2>&1
+          cat "$LOG"
+          grep -q "VISUAL_PHASE3_OK" "$LOG"
+          if grep -Eq "SCRIPT ERROR|Parse Error|Invalid call|Invalid access|Nonexistent function|Attempt to call|VISUAL_PHASE3_VALIDATE" "$LOG"; then
+            echo "Visual overhaul phase 3 validation error detected"
+            exit 1
+          fi
+
       - name: Validate idle anti-spoiler across 75 maps
         shell: bash
         run: |
@@ -275,10 +292,10 @@ jobs:
             --headless \
             --path . \
             --export-debug Android \
-            artifact/TrollParkour-v3.2-debug.apk \
+            artifact/TrollParkour-v3.3-debug.apk \
             --verbose
-          test -s artifact/TrollParkour-v3.2-debug.apk
-          ls -lh artifact/TrollParkour-v3.2-debug.apk
+          test -s artifact/TrollParkour-v3.3-debug.apk
+          ls -lh artifact/TrollParkour-v3.3-debug.apk
 
       - name: Verify APK signature
         shell: bash
@@ -286,12 +303,12 @@ jobs:
           "$ANDROID_SDK_ROOT/build-tools/34.0.0/apksigner" verify \
             --verbose \
             --print-certs \
-            artifact/TrollParkour-v3.2-debug.apk
+            artifact/TrollParkour-v3.3-debug.apk
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: TrollParkour-v3.2-Android-APK
-          path: artifact/TrollParkour-v3.2-debug.apk
+          name: TrollParkour-v3.3-Android-APK
+          path: artifact/TrollParkour-v3.3-debug.apk
           if-no-files-found: error
           retention-days: 30
