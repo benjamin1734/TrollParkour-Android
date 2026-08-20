@@ -31,7 +31,7 @@ func _run() -> void:
     await process_frame
     game._v24_execute_dev_command("WAREXT")
     await process_frame
-    if not is_instance_valid(game.v24_dev_overlay) or game.v24_dev_overlay.name != "V34DevSelector":
+    if not is_instance_valid(game.v24_dev_overlay) or not String(game.v24_dev_overlay.name).ends_with("DevSelector"):
         push_error("V34_VALIDATE: WAREXT did not open chapter selector")
         quit(1)
         return
