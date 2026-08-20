@@ -27,7 +27,7 @@ func _run() -> void:
         return
 
     var checked := 0
-    for c in range(1, 26):
+    for c in range(1, 27):
         for p in range(1, 4):
             game._start_level(c, p)
             await process_frame
@@ -94,7 +94,7 @@ func _run() -> void:
                 return
             checked += 1
 
-    if checked != 75:
+    if checked != 78:
         push_error("V35_VALIDATE: checked %d maps" % checked)
         quit(1)
         return
@@ -108,7 +108,7 @@ func _run() -> void:
             quit(1)
             return
 
-    print("V35_FULL_REBUILD_OK:75")
+    print("V35_FULL_REBUILD_OK:78")
     quit(0)
 
 func _collect_route(node: Node, out: Array[Node2D]) -> void:
