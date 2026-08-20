@@ -264,6 +264,23 @@ jobs:
             exit 1
           fi
 
+      - name: Validate v3.4 gameplay hotfix
+        shell: bash
+        run: |
+          set -euo pipefail
+          LOG=/tmp/trollparkour-v34-gameplay.log
+          "$HOME/godot/Godot_v4.3-stable_linux.x86_64" \
+            --headless \
+            --path . \
+            --script res://tests/validate_v34_gameplay_hotfix.gd \
+            --verbose >"$LOG" 2>&1
+          cat "$LOG"
+          grep -q "V34_GAMEPLAY_OK" "$LOG"
+          if grep -Eq "SCRIPT ERROR|Parse Error|Invalid call|Invalid access|Nonexistent function|Attempt to call|V34_GAMEPLAY_VALIDATE" "$LOG"; then
+            echo "v3.4 gameplay validation error detected"
+            exit 1
+          fi
+
       - name: Validate idle anti-spoiler across 75 maps
         shell: bash
         run: |
